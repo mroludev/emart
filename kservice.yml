@@ -1,0 +1,44 @@
+# Frontend Client Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: emartclientsvc
+ # Add the 'namespace' field here
+spec:
+  type: ClusterIP
+  selector:
+    app: emartclient
+  ports:
+  - port: 4200
+    targetPort: client-port
+    protocol: TCP
+---
+# Backend 1 API Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: emartapisvc
+   # Add the 'namespace' field here
+spec:
+  type: ClusterIP
+  selector:
+    app: emartapi
+  ports:
+  - port: 5000
+    targetPort: api-port
+    protocol: TCP
+---
+# Backend 2 WebAPI Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: emartwebapisvc
+ # Add the 'namespace' field here
+spec:
+  type: ClusterIP
+  selector:
+    app: emartwebapi
+  ports:
+  - port: 9000
+    targetPort: webapi-port
+    protocol: TCP

@@ -1,0 +1,106 @@
+# frontend
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: emartclient
+    # Add the 'namespace' field here
+  labels:
+    app: emartclient
+spec:
+  selector:
+    matchLabels:
+      app: emartclient
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: emartclient
+    spec:
+      containers:
+      - name: emartclient
+        image: ristabel/client:v1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 4200
+          name: client-port
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+   
+---
+# backend 1
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: emartapi
+   # Add the 'namespace' field here
+  labels:
+    app: emartapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: emartapi  
+  template:
+    metadata:
+      labels:
+        app: emartapi
+    spec:
+      containers:
+        - name: emartapi
+          image: ristabel/api:v1
+          imagePullPolicy: Always
+          ports:
+            - name: api-port
+              containerPort: 5000
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+
+---
+# backend 2
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: emartwebapi
+  # Add the 'namespace' field here
+  labels:
+    app: emartwebapi
+spec:
+  selector:
+    matchLabels:
+      app: emartwebapi
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: emartwebapi
+    spec:
+      containers:
+      - name: emartwebapi
+        image: ristabel/webapi:v1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 9000
+          name: webapi-port
+        env:
+        - name: MONGOURI
+          value: 'mongodb://emongo:27017/epoc'
+        - name: SECRETORKEY
+          value: 'k1234e6s78h9av'
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+   

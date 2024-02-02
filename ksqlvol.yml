@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: emartdb
+
+  labels:
+    app: emartdb
+spec:
+  selector:
+    matchLabels:
+      app: emartdb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: emartdb
+    spec:
+    containers:
+      - name: emartdb
+        image: mysql:5.7.25
+        ports:
+        - name: emysqldb-port
+          containerPort: 3306
+        volumeMounts:
+             - name: emartdb
+               mountPath: /var/lib/mysql
+        env: 
+         - name: MYSQL_DATABASE
+           valueFrom:
+            configMapKeyRef:
+              name: dbconfig
+              key: mysqldbname
+
+         - name: MYSQL_ROOT_PASSWORD
+           valueFrom:
+             secretKeyRef:
+               name: mysql-creds
+               key: mysql-pass
+    volumes:
+        - name: emartdb
+          persistentVolumeClaim:
+            claimName: emartdb  
+---
+
+
+---
+# MySQL PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: emartdb
+   # Add the 'namespace' field here
+spec:
+  storageClassName: ebs-sc
+  resources:
+    requests:
+      storage: 100Mi
+  accessModes:
+    - ReadWriteOnce
+---
+kind: StorageClass 
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: ebs-sc
+provisioner: kubernetes.io/aws name
+---
+# MySQL Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: emartdb
+   # Add the 'namespace' field here
+spec:
+  type: ClusterIP
+  selector:
+    app: emartdb
+  ports:
+    - port: 3306
+      targetPort: 3306
+      protocol: TCP
